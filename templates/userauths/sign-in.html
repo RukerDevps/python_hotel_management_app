@@ -1,0 +1,52 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{% static '/css/signin.css' %}" />
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="nav-container">
+        <div class="items">
+            <a href=""><img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="..logo" id="logo" /></a>
+        </div>
+        <div class="items"><a href="{% url 'hotel:index'%}">Home</a></div>
+        <div class="items"><a href="{%  url 'hotel:about' %}">About</a></div>
+        <div class="items"><a href="#">Contact</a></div>
+        <div class="items"><a href="{%  url 'hotel:rooms' %}">Rooms</a></div>
+        <div class="items"><a href="#">Explore</a></div>
+        <div class="items">
+            <a href="{% url 'userauths:sign-up'%}"><button id="login">Sign up</button></a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="item-left">
+            <form action="" method="POST">
+                <h1>Login</h1>
+                {% csrf_token %}
+
+                {% for m in messages %}
+                <p id="message">{{m}}</p>
+                {% endfor %}
+                <input type="email" name="email" placeholder="Enter email" />
+                <input type="password" name="password" placeholder="Enter Password" />
+                <button type="submit">Login</button>
+            </form>
+        </div>
+        <div class="item-right">
+            <img src="{% static '/images/log-in.png ' %}" alt="Log In Image" />
+        </div>
+    </div>
+
+
+  
+
+</body>
+
+</html>

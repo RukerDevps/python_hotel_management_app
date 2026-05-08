@@ -1,0 +1,420 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static '/css/detailpage.css' %}">
+    <title>{{ hotel.name }} — Hotel Detail</title>
+</head>
+
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="nav-container" id="navbar">
+        <div class="nav-logo">
+            <a href="{% url 'hotel:index' %}">
+                <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" id="logo">
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'hotel:index' %}">Home</a>
+            <a href="{% url 'hotel:about' %}">About</a>
+            <a href="{% url 'hotel:rooms' %}">Rooms</a>
+            <a href="#">Explore</a>
+        </div>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+            <a href="#" class="nav-btn nav-btn-outline">Dashboard</a>
+            <a href="#"><img src="{% static '/images/cat.png' %}" alt="avatar" id="logoavatar"></a>
+            {% else %}
+            <a href="{% url 'userauths:sign-in' %}" class="nav-btn nav-btn-ghost">Log In</a>
+            <a href="{% url 'userauths:sign-up' %}" class="nav-btn nav-btn-gold">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero-section">
+        <div class="hero-bg">
+            <img src="{{ hotel.image.url }}" alt="{{ hotel.name }}" class="hero-img" id="mainHeroImg">
+            <div class="hero-gradient"></div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="hero-stars">{{ hotel.get_star_icons|safe }}</span>
+                <span class="hero-rating">{{ hotel.rating }}/5</span>
+            </div>
+            <h1 class="hero-title">{{ hotel.name }}</h1>
+            <p class="hero-location"><i class="bi bi-geo-alt-fill"></i> {{ hotel.address }}</p>
+        </div>
+
+        {% if hotel.hotel_gallery.all %}
+        <div class="gallery-strip">
+            <div class="gallery-strip-inner">
+                {% for hg in hotel.hotel_gallery.all %}
+                <button class="gallery-thumb" onclick="swapHero('{{ hg.image.url }}', this)">
+                    <img src="{{ hg.image.url }}" alt="Gallery photo {{ forloop.counter }}">
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- ========== BREADCRUMB ========== -->
+    <div class="breadcrumb-bar">
+        <div class="container-xl">
+            <ol class="breadcrumb-list">
+                <li><a href="{% url 'hotel:index' %}">Home</a></li>
+                <li class="sep"><i class="bi bi-chevron-right"></i></li>
+                <li><a href="{% url 'hotel:rooms' %}">Hotels</a></li>
+                <li class="sep"><i class="bi bi-chevron-right"></i></li>
+                <li class="active">{{ hotel.name }}</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-wrap">
+        <div class="container-xl">
+            <div class="content-grid">
+
+                <!-- LEFT COLUMN -->
+                <div class="left-col">
+
+                    <!-- Hotel Header -->
+                    <article class="card fade-up">
+                        <div class="hotel-header-top">
+                            <div>
+                                <h2 class="hotel-title">{{ hotel.name }}</h2>
+                                <p class="hotel-address">
+                                    <i class="bi bi-geo-alt-fill"></i> {{ hotel.address }}
+                                </p>
+                                <div class="hotel-stars">
+                                    {{ hotel.get_star_icons|safe }}
+                                    <span class="rating-badge">{{ hotel.rating }}/5</span>
+                                </div>
+                            </div>
+                            <div class="contact-pills">
+                                <a href="tel:{{ hotel.mobile }}" class="contact-pill">
+                                    <i class="bi bi-telephone-fill"></i>
+                                    <span>{{ hotel.mobile }}</span>
+                                </a>
+                                <a href="mailto:{{ hotel.email }}" class="contact-pill">
+                                    <i class="bi bi-envelope-fill"></i>
+                                    <span>{{ hotel.email }}</span>
+                                </a>
+                            </div>
+                        </div>
+                        {% if hotel.tags.all %}
+                        <div class="tag-list">
+                            {% for t in hotel.tags.all %}
+                            <span class="tag-badge"><i class="bi bi-tag-fill"></i> {{ t.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </article>
+
+                    <!-- Description -->
+                    <article class="card fade-up">
+                        <h3 class="section-title">
+                            <span class="title-ornament">—</span> About this Hotel
+                        </h3>
+                        <div class="description-body">{{ hotel.description|safe }}</div>
+                    </article>
+
+                    <!-- Amenities -->
+                    {% if hotel_features %}
+                    <article class="card fade-up">
+                        <h3 class="section-title">
+                            <span class="title-ornament">—</span> Amenities &amp; Features
+                        </h3>
+                        <div class="amenities-grid">
+                            {% for feature in hotel_features %}
+                            <div class="amenity-item">
+                                <div class="amenity-icon"><i class="{{ feature.icon }}"></i></div>
+                                <span>{{ feature.name }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </article>
+                    {% endif %}
+
+                    <!-- Room Types -->
+                    {% if room_types %}
+                    <article class="card fade-up">
+                        <h3 class="section-title">
+                            <span class="title-ornament">—</span> Available Room Types
+                        </h3>
+                        <div class="rooms-grid">
+                            {% for room in room_types %}
+                            <div class="room-card">
+                                <div class="room-card-header">
+                                    <h4>{{ room.type }}</h4>
+                                    <div class="room-price">${{ room.price }}<small>/night</small></div>
+                                </div>
+                                <div class="room-card-body">
+                                    <div class="room-info-row">
+                                        <span><i class="bi bi-person-fill"></i> {{ room.room_capacity }} guests</span>
+                                        <span><i class="bi bi-moon-fill"></i> {{ room.number_of_beds }} beds</span>
+                                    </div>
+                                </div>
+                                <div class="room-card-footer">
+                                    <form method="post" action="{% url 'hotel:add_hotel_to_cart' hotel_slug=hotel.slug %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-add-cart">
+                                            <i class="bi bi-cart-plus-fill"></i> Add to Cart
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </article>
+                    {% endif %}
+
+                    <!-- FAQs -->
+                    {% if hotel_faqs %}
+                    <article class="card fade-up">
+                        <h3 class="section-title">
+                            <span class="title-ornament">—</span> Frequently Asked Questions
+                        </h3>
+                        <div class="faq-list">
+                            {% for faq in hotel_faqs %}
+                            <div class="faq-item" id="faq{{ forloop.counter }}">
+                                <button class="faq-question" onclick="toggleFaq('faq{{ forloop.counter }}')">
+                                    <span>{{ faq.question }}</span>
+                                    <i class="bi bi-plus-lg faq-icon"></i>
+                                </button>
+                                <div class="faq-answer">
+                                    <div class="faq-answer-inner">{{ faq.answer }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </article>
+                    {% endif %}
+
+                    <!-- Review Form -->
+                    <article class="card fade-up">
+                        <h3 class="section-title">
+                            <span class="title-ornament">—</span> Leave a Review
+                        </h3>
+                        <form class="review-form" method="post">
+                            {% csrf_token %}
+                            <div class="form-row">
+                                <div class="form-field">
+                                    <label>Your Name</label>
+                                    <input type="text" class="form-input" placeholder="John Doe">
+                                </div>
+                                <div class="form-field">
+                                    <label>Email Address</label>
+                                    <input type="email" class="form-input" placeholder="john@example.com">
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label>Your Rating</label>
+                                <div class="star-rating-input">
+                                    <i class="bi bi-star star-pick" data-val="1"></i>
+                                    <i class="bi bi-star star-pick" data-val="2"></i>
+                                    <i class="bi bi-star star-pick" data-val="3"></i>
+                                    <i class="bi bi-star star-pick" data-val="4"></i>
+                                    <i class="bi bi-star star-pick" data-val="5"></i>
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label>Your Review</label>
+                                <textarea class="form-input form-textarea" rows="4" placeholder="Share your experience at {{ hotel.name }}..."></textarea>
+                            </div>
+                            <button type="submit" class="btn-submit-review">
+                                <i class="bi bi-send-fill"></i> Post Review
+                            </button>
+                        </form>
+                    </article>
+
+                </div><!-- /left-col -->
+
+                <!-- RIGHT COLUMN: Booking Widget -->
+                <div class="right-col">
+                    <div class="booking-widget">
+                        <div class="booking-widget-head">
+                            <div class="booking-price">
+                                {% if room_types %}
+                                <span class="from-label">From</span>
+                                <span class="price-amount">${{ room_types.0.price }}</span>
+                                <span class="per-night">/night</span>
+                                {% else %}
+                                <span class="from-label">Contact for pricing</span>
+                                {% endif %}
+                            </div>
+                            <div class="booking-stars">{{ hotel.get_star_icons|safe }}</div>
+                        </div>
+
+                        <form method="get" action="{% url 'hotel:create_booking' slug=hotel.slug %}" class="booking-form">
+                            <div class="booking-field">
+                                <label><i class="bi bi-calendar-check"></i> Check-in</label>
+                                <input type="date" name="check_in" class="booking-input">
+                            </div>
+                            <div class="booking-field">
+                                <label><i class="bi bi-calendar-x"></i> Check-out</label>
+                                <input type="date" name="check_out" class="booking-input">
+                            </div>
+                            <div class="booking-field">
+                                <label><i class="bi bi-door-open"></i> Room Type</label>
+                                <select name="room_type" class="booking-input">
+                                    <option value="">Select room type</option>
+                                    {% for room in room_types %}
+                                    <option value="{{ room.id }}">{{ room.type }} — ${{ room.price }}/night</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="booking-guests">
+                                <div class="booking-field">
+                                    <label><i class="bi bi-person"></i> Adults</label>
+                                    <div class="guest-stepper">
+                                        <button type="button" class="stepper-btn" onclick="stepGuest(this, -1)">−</button>
+                                        <input type="number" name="num_adults" min="1" max="10" value="1" class="stepper-input">
+                                        <button type="button" class="stepper-btn" onclick="stepGuest(this, 1)">+</button>
+                                    </div>
+                                </div>
+                                <div class="booking-field">
+                                    <label><i class="bi bi-people"></i> Children</label>
+                                    <div class="guest-stepper">
+                                        <button type="button" class="stepper-btn" onclick="stepGuest(this, -1)">−</button>
+                                        <input type="number" name="num_children" min="0" max="10" value="0" class="stepper-input">
+                                        <button type="button" class="stepper-btn" onclick="stepGuest(this, 1)">+</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-book-now">
+                                <i class="bi bi-lightning-charge-fill"></i> Reserve Now
+                            </button>
+                        </form>
+
+                        <div class="booking-assurance">
+                            <div class="assurance-item"><i class="bi bi-shield-check"></i><span>Free cancellation available</span></div>
+                            <div class="assurance-item"><i class="bi bi-check-circle"></i><span>Instant confirmation</span></div>
+                            <div class="assurance-item"><i class="bi bi-lock-fill"></i><span>Secure payment</span></div>
+                        </div>
+
+                        <div class="booking-contact">
+                            <p>Need assistance?</p>
+                            <a href="tel:{{ hotel.mobile }}" class="contact-link">
+                                <i class="bi bi-telephone"></i> {{ hotel.mobile }}
+                            </a>
+                            <a href="mailto:{{ hotel.email }}" class="contact-link">
+                                <i class="bi bi-envelope"></i> {{ hotel.email }}
+                            </a>
+                        </div>
+                    </div>
+                </div><!-- /right-col -->
+
+            </div><!-- /content-grid -->
+        </div><!-- /container-xl -->
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer">
+        <div class="footer-ornament"></div>
+        <div class="container-xl">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" height="42">
+                    <p>Experience luxury and comfort at {{ hotel.name }}. We are committed to making your stay truly unforgettable.</p>
+                </div>
+                <div class="footer-col">
+                    <h6>Quick Links</h6>
+                    <ul>
+                        <li><a href="{% url 'hotel:index' %}">Home</a></li>
+                        <li><a href="{% url 'hotel:rooms' %}">Rooms</a></li>
+                        <li><a href="{% url 'hotel:about' %}">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h6>Contact</h6>
+                    <p><i class="bi bi-geo-alt-fill"></i> {{ hotel.address }}</p>
+                    <p><i class="bi bi-telephone-fill"></i> {{ hotel.mobile }}</p>
+                    <p><i class="bi bi-envelope-fill"></i> {{ hotel.email }}</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 {{ hotel.name }}. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <script>
+        // Hero image swap with fade
+        function swapHero(url, btn) {
+            const img = document.getElementById('mainHeroImg');
+            img.style.opacity = '0';
+            setTimeout(() => { img.src = url; img.style.opacity = '1'; }, 270);
+            document.querySelectorAll('.gallery-thumb').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
+
+        // FAQ accordion
+        function toggleFaq(id) {
+            const item = document.getElementById(id);
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        }
+
+        // Guest stepper
+        function stepGuest(btn, dir) {
+            const input = btn.parentElement.querySelector('.stepper-input');
+            const next = parseInt(input.value) + dir;
+            if (next >= parseInt(input.min) && next <= parseInt(input.max)) input.value = next;
+        }
+
+        // Navbar transparency → solid on scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        }, { passive: true });
+
+        // Star rating picker
+        const stars = document.querySelectorAll('.star-pick');
+        let selectedRating = 0;
+
+        function renderStars(hoverIdx) {
+            const limit = hoverIdx !== undefined ? hoverIdx : selectedRating - 1;
+            stars.forEach((s, i) => {
+                if (i <= limit) {
+                    s.classList.replace('bi-star', 'bi-star-fill');
+                    s.style.color = '#c9a96e';
+                } else {
+                    s.classList.replace('bi-star-fill', 'bi-star');
+                    s.style.color = '';
+                }
+            });
+        }
+
+        stars.forEach((star, idx) => {
+            star.addEventListener('mouseover', () => renderStars(idx));
+            star.addEventListener('mouseout', () => renderStars());
+            star.addEventListener('click', () => { selectedRating = idx + 1; renderStars(); });
+        });
+
+        // Scroll-reveal for cards
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+        }, { threshold: 0.07 });
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    </script>
+
+</body>
+</html>

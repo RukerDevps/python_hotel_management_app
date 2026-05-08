@@ -1,0 +1,309 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static '/css/hotel.css' %}">
+    <title>Luxury Hotels — Find Your Perfect Stay</title>
+</head>
+
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="nav-container" id="navbar">
+        <div class="nav-logo">
+            <a href="{% url 'hotel:index' %}">
+                <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" id="logo">
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'hotel:index' %}">Home</a>
+            <a href="{% url 'hotel:about' %}">About</a>
+            <a href="{% url 'hotel:rooms' %}">Rooms</a>
+            <a href="#">Explore</a>
+        </div>
+        <div class="nav-actions">
+            <a href="{% url 'hotel:view_cart' %}" class="nav-cart" title="View cart">
+                <i class="bi bi-bag"></i>
+            </a>
+            {% if request.user.is_authenticated %}
+            <a href="#" class="nav-btn nav-btn-outline">Dashboard</a>
+            <a href="#"><img src="{% static '/images/cat.png' %}" alt="avatar" id="logoavatar"></a>
+            {% else %}
+            <a href="{% url 'userauths:sign-in' %}" class="nav-btn nav-btn-ghost">Log In</a>
+            <a href="{% url 'userauths:sign-up' %}" class="nav-btn nav-btn-gold">Sign Up</a>
+            {% endif %}
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== MOBILE MENU ========== -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="{% url 'hotel:index' %}">Home</a>
+        <a href="{% url 'hotel:about' %}">About</a>
+        <a href="{% url 'hotel:rooms' %}">Rooms</a>
+        <a href="#">Explore</a>
+        <a href="{% url 'hotel:view_cart' %}">Cart</a>
+        <div class="mobile-menu-actions">
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'userauths:sign-out' %}" class="nav-btn nav-btn-ghost">Log Out</a>
+            {% else %}
+            <a href="{% url 'userauths:sign-in' %}" class="nav-btn nav-btn-ghost">Log In</a>
+            <a href="{% url 'userauths:sign-up' %}" class="nav-btn nav-btn-gold">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ========== HERO CAROUSEL ========== -->
+    <section class="hero-carousel" id="heroCarousel">
+        <div class="slide active">
+            <img src="{% static '/images/Hotel-WordPress-Theme-Slider-5.jpg' %}" alt="Slide 1">
+            <div class="slide-overlay"></div>
+        </div>
+        <div class="slide">
+            <img src="{% static '/images/Hotel-WordPress-Theme-Slider-6.jpg' %}" alt="Slide 2">
+            <div class="slide-overlay"></div>
+        </div>
+        <div class="slide">
+            <img src="{% static '/images/Hotel-WordPress-Theme-Slider-7.jpg' %}" alt="Slide 3">
+            <div class="slide-overlay"></div>
+        </div>
+
+        <div class="carousel-content hero-animate">
+            <p class="carousel-overline">Welcome to Luxury</p>
+            <h1 class="carousel-title">Where Every Stay<br><em>Becomes a Memory</em></h1>
+            <p class="carousel-sub">Discover handpicked hotels that blend comfort, elegance, and unforgettable experiences.</p>
+            <div class="carousel-cta-row">
+                <a href="{% url 'hotel:rooms' %}" class="carousel-cta">
+                    <i class="bi bi-search"></i> Explore Hotels
+                </a>
+                <a href="{% url 'hotel:about' %}" class="carousel-cta-ghost">Our Story</a>
+            </div>
+        </div>
+
+        <div class="carousel-indicators-custom">
+            <button class="ind-btn active" onclick="goSlide(0)"></button>
+            <button class="ind-btn" onclick="goSlide(1)"></button>
+            <button class="ind-btn" onclick="goSlide(2)"></button>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="scroll-hint">
+            <span></span>
+        </div>
+    </section>
+
+    <!-- ========== WELCOME STRIP ========== -->
+    {% if request.user.is_authenticated %}
+    <div class="welcome-strip">
+        <div class="container-xl">
+            <h2>Welcome back, {{ request.user.username }}</h2>
+            <p>Ready to plan your next escape?</p>
+            <div class="welcome-actions">
+                <a href="{% url 'hotel:rooms' %}" class="nav-btn nav-btn-gold">Browse Hotels</a>
+                <a href="{% url 'userauths:sign-out' %}" class="btn-logout">Log Out</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ========== AMENITY STRIP ========== -->
+    <section class="amenity-strip">
+        <div class="container-xl">
+            <div class="amenity-grid">
+                <div class="amenity-item">
+                    <div class="amenity-icon"><i class="bi bi-award-fill"></i></div>
+                    <div class="amenity-text">
+                        <h5>Award-Winning Service</h5>
+                        <p>Globally recognized for excellence</p>
+                    </div>
+                </div>
+                <div class="amenity-divider"></div>
+                <div class="amenity-item">
+                    <div class="amenity-icon"><i class="bi bi-compass-fill"></i></div>
+                    <div class="amenity-text">
+                        <h5>Prime Destinations</h5>
+                        <p>Handpicked locations worldwide</p>
+                    </div>
+                </div>
+                <div class="amenity-divider"></div>
+                <div class="amenity-item">
+                    <div class="amenity-icon"><i class="bi bi-gem"></i></div>
+                    <div class="amenity-text">
+                        <h5>5-Star Curated Stays</h5>
+                        <p>Every property, perfected for you</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== HOTELS SECTION ========== -->
+    <section class="hotels-section">
+        <div class="container-xl">
+            <div class="section-header">
+                <p class="section-overline">Our Collection</p>
+                <h2>Featured Properties</h2>
+                <p>Each property is selected for its exceptional quality, unique character, and commitment to guest experience.</p>
+            </div>
+
+            <div class="hotels-grid">
+                {% for hotel in hotels %}
+                <div class="hotel-card">
+                    <div class="hotel-card-img">
+                        <img src="{{ hotel.image.url }}" alt="{{ hotel.name }}">
+                        <div class="hotel-card-img-overlay"></div>
+                        <div class="hotel-card-badge">
+                            <i class="bi bi-star-fill"></i>
+                            {{ hotel.rating }}
+                        </div>
+                    </div>
+                    <div class="hotel-card-body">
+                        <h3 class="hotel-card-title">{{ hotel.name }}</h3>
+                        <div class="hotel-card-phone">
+                            <i class="bi bi-telephone-fill"></i> {{ hotel.mobile }}
+                        </div>
+                        <p class="hotel-card-desc">{{ hotel.description|truncatewords:18|safe }}</p>
+                    </div>
+                    <div class="hotel-card-footer">
+                        <a href="{% url 'hotel:hotel-detail' hotel.slug %}" class="btn-select-room">
+                            <i class="bi bi-arrow-right-circle-fill"></i> View Hotel
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== AMBIENT QUOTE ========== -->
+    <section class="ambient-section">
+        <div class="ambient-bg" style="background-image: url(&quot;{% static '/images/Hotel-WordPress-Theme-Slider-6.jpg' %}&quot;)"></div>
+        <div class="ambient-overlay"></div>
+        <div class="ambient-content">
+            <span class="ambient-overline">Our Philosophy</span>
+            <blockquote class="ambient-quote">
+                "True luxury is not measured in thread counts<br>
+                or marble floors — it lives in<br>
+                <em>the art of being truly cared for.</em>"
+            </blockquote>
+            <a href="{% url 'hotel:about' %}" class="btn-ambient">
+                Discover Our Story <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer">
+        <div class="footer-ornament"></div>
+        <div class="container-xl">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" height="42">
+                    <p>Experience the world's finest hotels, handpicked for those who demand nothing less than extraordinary.</p>
+                </div>
+                <div class="footer-col">
+                    <h6>Navigate</h6>
+                    <ul>
+                        <li><a href="{% url 'hotel:index' %}">Home</a></li>
+                        <li><a href="{% url 'hotel:rooms' %}">Rooms</a></li>
+                        <li><a href="{% url 'hotel:about' %}">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h6>Account</h6>
+                    <ul>
+                        {% if request.user.is_authenticated %}
+                        <li><a href="#">My Dashboard</a></li>
+                        <li><a href="{% url 'userauths:sign-out' %}">Log Out</a></li>
+                        {% else %}
+                        <li><a href="{% url 'userauths:sign-in' %}">Log In</a></li>
+                        <li><a href="{% url 'userauths:sign-up' %}">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Luxury Hotels. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <script>
+        // Auto carousel
+        const slides = document.querySelectorAll('.slide');
+        const inds = document.querySelectorAll('.ind-btn');
+        let current = 0, timer;
+
+        function goSlide(n) {
+            slides[current].classList.remove('active');
+            inds[current].classList.remove('active');
+            current = (n + slides.length) % slides.length;
+            slides[current].classList.add('active');
+            inds[current].classList.add('active');
+            clearInterval(timer);
+            timer = setInterval(() => goSlide(current + 1), 5000);
+        }
+        timer = setInterval(() => goSlide(current + 1), 5000);
+
+        // Navbar on scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 60);
+        }, { passive: true });
+
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hamburger.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+        // Close when a menu link is clicked
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            });
+        });
+        // Close on outside click
+        document.addEventListener('click', (e) => {
+            if (!navbar.contains(e.target) && !mobileMenu.contains(e.target)) {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        // Scroll reveal with stagger — clear delay after animation so hover is instant
+        const cards = document.querySelectorAll('.hotel-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    const delay = parseFloat(e.target.style.transitionDelay) || 0;
+                    setTimeout(() => { e.target.style.transitionDelay = '0ms'; }, delay + 650);
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.06 });
+        cards.forEach((card, i) => {
+            card.style.transitionDelay = `${i * 80}ms`;
+            observer.observe(card);
+        });
+    </script>
+
+</body>
+</html>

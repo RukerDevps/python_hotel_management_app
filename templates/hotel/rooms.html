@@ -1,0 +1,233 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static '/css/room.css' %}">
+    <title>Hotels &amp; Rooms — Browse Our Collection</title>
+</head>
+
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="nav-container" id="navbar">
+        <div class="nav-logo">
+            <a href="{% url 'hotel:index' %}">
+                <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" id="logo">
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'hotel:index' %}">Home</a>
+            <a href="{% url 'hotel:about' %}">About</a>
+            <a href="{% url 'hotel:rooms' %}" class="active">Rooms</a>
+            <a href="#">Explore</a>
+        </div>
+        <div class="nav-actions">
+            <a href="{% url 'hotel:view_cart' %}" class="nav-cart" title="View cart">
+                <i class="bi bi-bag"></i>
+            </a>
+            {% if request.user.is_authenticated %}
+            <a href="#" class="nav-btn nav-btn-outline">Dashboard</a>
+            <a href="#"><img src="{% static '/images/cat.png' %}" alt="avatar" id="logoavatar"></a>
+            {% else %}
+            <a href="{% url 'userauths:sign-in' %}" class="nav-btn nav-btn-ghost">Log In</a>
+            <a href="{% url 'userauths:sign-up' %}" class="nav-btn nav-btn-gold">Sign Up</a>
+            {% endif %}
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== MOBILE MENU ========== -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="{% url 'hotel:index' %}">Home</a>
+        <a href="{% url 'hotel:about' %}">About</a>
+        <a href="{% url 'hotel:rooms' %}">Rooms</a>
+        <a href="#">Explore</a>
+        <a href="{% url 'hotel:view_cart' %}">Cart</a>
+        <div class="mobile-menu-actions">
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'userauths:sign-out' %}" class="nav-btn nav-btn-ghost">Log Out</a>
+            {% else %}
+            <a href="{% url 'userauths:sign-in' %}" class="nav-btn nav-btn-ghost">Log In</a>
+            <a href="{% url 'userauths:sign-up' %}" class="nav-btn nav-btn-gold">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ========== PAGE HEADER ========== -->
+    <header class="page-header">
+        <div class="container-xl">
+            <p class="page-header-overline">Our Collection</p>
+            <h1>Hotels &amp; Rooms</h1>
+            <p>Discover exceptional properties curated for the discerning traveller.</p>
+        </div>
+    </header>
+
+    <!-- ========== ROOMS GRID ========== -->
+    <section class="rooms-section">
+        <div class="container-xl">
+
+            <!-- Filter bar -->
+            <div class="filter-bar">
+                <div class="filter-bar-inner">
+                    <div class="search-wrap">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="hotelSearch" placeholder="Search properties…" autocomplete="off">
+                    </div>
+                    <span class="filter-count"><span id="visibleCount">{{ hotels|length }}</span> of {{ hotels|length }} properties</span>
+                </div>
+            </div>
+
+            <div class="hotels-grid" id="hotelsGrid">
+                {% for hotel in hotels %}
+                <div class="hotel-card" data-name="{{ hotel.name|lower }}">
+                    <div class="hotel-card-img">
+                        <img src="{{ hotel.image.url }}" alt="{{ hotel.name }}">
+                        <div class="hotel-card-img-overlay"></div>
+                        <div class="card-meta-row">
+                            <span class="card-views">
+                                <i class="bi bi-eye-fill"></i> {{ hotel.views }}
+                            </span>
+                            <span class="card-stars">
+                                {{ hotel.get_star_icons|safe }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="hotel-card-body">
+                        <h3 class="hotel-card-title">{{ hotel.name }}</h3>
+                        <div class="hotel-card-phone">
+                            <i class="bi bi-telephone-fill"></i> {{ hotel.mobile }}
+                        </div>
+                        <p class="hotel-card-desc">{{ hotel.description|truncatewords:18|safe }}</p>
+                    </div>
+                    <div class="hotel-card-footer">
+                        <a href="{% url 'hotel:hotel-detail' hotel.slug %}" class="btn-select-room">
+                            <i class="bi bi-arrow-right-circle-fill"></i> Select Rooms
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="grid-column:1/-1; text-align:center; padding:80px 0; color:var(--text-muted);">
+                    <i class="bi bi-building" style="font-size:44px;display:block;margin-bottom:16px;opacity:0.4;"></i>
+                    <p style="font-size:15px;font-weight:300;">No hotels available at the moment.</p>
+                </div>
+                {% endfor %}
+
+                <div class="no-results" id="noResults">
+                    <i class="bi bi-search"></i>
+                    <p>No properties match your search.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer">
+        <div class="footer-ornament"></div>
+        <div class="container-xl">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" height="42">
+                    <p>Handpicked hotels that redefine luxury. Every stay is a chapter in your most memorable story.</p>
+                </div>
+                <div class="footer-col">
+                    <h6>Navigate</h6>
+                    <ul>
+                        <li><a href="{% url 'hotel:index' %}">Home</a></li>
+                        <li><a href="{% url 'hotel:rooms' %}">Rooms</a></li>
+                        <li><a href="{% url 'hotel:about' %}">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h6>Account</h6>
+                    <ul>
+                        {% if request.user.is_authenticated %}
+                        <li><a href="#">My Dashboard</a></li>
+                        <li><a href="{% url 'userauths:sign-out' %}">Log Out</a></li>
+                        {% else %}
+                        <li><a href="{% url 'userauths:sign-in' %}">Log In</a></li>
+                        <li><a href="{% url 'userauths:sign-up' %}">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Luxury Hotels. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <script>
+        // Hamburger
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navbar = document.getElementById('navbar');
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hamburger.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+        // Close when a menu link is clicked
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            });
+        });
+        document.addEventListener('click', (e) => {
+            if (!navbar.contains(e.target) && !mobileMenu.contains(e.target)) {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        // Scroll reveal with stagger — clear delay after animation so hover is instant
+        const cards = document.querySelectorAll('.hotel-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    const delay = parseFloat(e.target.style.transitionDelay) || 0;
+                    setTimeout(() => { e.target.style.transitionDelay = '0ms'; }, delay + 620);
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.06 });
+        cards.forEach((card, i) => {
+            card.style.transitionDelay = `${i * 70}ms`;
+            observer.observe(card);
+        });
+
+        // Live search filter
+        const searchInput = document.getElementById('hotelSearch');
+        const visibleCount = document.getElementById('visibleCount');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', () => {
+            const q = searchInput.value.toLowerCase().trim();
+            let count = 0;
+            cards.forEach(card => {
+                const name = card.dataset.name || '';
+                const match = !q || name.includes(q);
+                card.classList.toggle('hidden', !match);
+                if (match) count++;
+            });
+            visibleCount.textContent = count;
+            noResults.style.display = count === 0 ? 'block' : 'none';
+        });
+    </script>
+
+</body>
+</html>

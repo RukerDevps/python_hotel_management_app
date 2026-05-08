@@ -1,0 +1,239 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static '/css/cartindex.css' %}">
+    <title>Your Cart</title>
+</head>
+
+<body>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="nav-container" id="navbar">
+        <div class="nav-logo">
+            <a href="{% url 'hotel:index' %}">
+                <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" id="logo">
+            </a>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'hotel:index' %}">Home</a>
+            <a href="{% url 'hotel:about' %}">About</a>
+            <a href="{% url 'hotel:rooms' %}">Rooms</a>
+            <a href="#">Explore</a>
+        </div>
+        <div class="nav-actions">
+            <a href="{% url 'hotel:view_cart' %}" class="nav-cart" title="Your cart">
+                <i class="bi bi-bag-fill"></i>
+                {% if cart_items %}<span class="nav-cart-badge">{{ cart_items|length }}</span>{% endif %}
+            </a>
+            {% if request.user.is_authenticated %}
+            <a href="#" class="nav-btn nav-btn-outline">Dashboard</a>
+            <a href="#"><img src="{% static '/images/cat.png' %}" alt="avatar" id="logoavatar"></a>
+            {% else %}
+            <a href="{% url 'userauths:sign-in' %}" class="nav-btn nav-btn-ghost">Log In</a>
+            <a href="{% url 'userauths:sign-up' %}" class="nav-btn nav-btn-gold">Sign Up</a>
+            {% endif %}
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== MOBILE MENU ========== -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="{% url 'hotel:index' %}">Home</a>
+        <a href="{% url 'hotel:about' %}">About</a>
+        <a href="{% url 'hotel:rooms' %}">Rooms</a>
+        <a href="#">Explore</a>
+        <a href="{% url 'hotel:view_cart' %}">Cart</a>
+        <div class="mobile-menu-actions">
+            {% if request.user.is_authenticated %}
+            <a href="{% url 'userauths:sign-out' %}" class="nav-btn nav-btn-ghost">Log Out</a>
+            {% else %}
+            <a href="{% url 'userauths:sign-in' %}" class="nav-btn nav-btn-ghost">Log In</a>
+            <a href="{% url 'userauths:sign-up' %}" class="nav-btn nav-btn-gold">Sign Up</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ========== CART HEADER ========== -->
+    <div class="cart-header">
+        <div class="container-xl">
+            <div class="cart-header-inner">
+                <div>
+                    <h1>Your Cart</h1>
+                    <p>Review your selected rooms before proceeding to checkout.</p>
+                </div>
+                <span class="cart-count-badge">{{ cart_items|length }} item{{ cart_items|length|pluralize }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== CART CONTENT ========== -->
+    <div class="cart-wrap">
+        <div class="container-xl">
+            <div class="cart-grid">
+
+                <!-- Cart Items -->
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                    <div class="cart-item">
+                        <div class="cart-item-img">
+                            {% if item.imagecart %}
+                            <img src="{{ item.imagecart.url }}" alt="{{ item.room_type }}">
+                            {% else %}
+                            <img src="{% static '/images/Hotel-WordPress-Theme-Slider-5.jpg' %}" alt="{{ item.room_type }}">
+                            {% endif %}
+                        </div>
+                        <div class="cart-item-body">
+                            <div>
+                                <h3 class="cart-item-title">{{ item.room_type }}</h3>
+                                <p class="cart-item-meta">
+                                    <i class="bi bi-moon-fill" style="color:var(--gold);margin-right:5px;"></i>
+                                    Room reservation
+                                </p>
+                            </div>
+                            <div class="cart-item-price">${{ item.price }}</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <form method="post" action="{% url 'hotel:update_quantity' item.id %}" class="qty-form">
+                                {% csrf_token %}
+                                <span class="qty-label">Quantity</span>
+                                <div class="qty-row">
+                                    <button type="button" class="qty-btn" onclick="stepQty(this,-1)">−</button>
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="qty-input" id="qty{{ item.id }}">
+                                    <button type="button" class="qty-btn" onclick="stepQty(this,1)">+</button>
+                                </div>
+                                <button type="submit" class="btn-qty-update">
+                                    <i class="bi bi-check2"></i> Update
+                                </button>
+                            </form>
+                            <a href="{% url 'hotel:remove_from_cart' item.id %}" class="btn-remove">
+                                <i class="bi bi-trash3-fill"></i> Remove
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="cart-empty">
+                        <i class="bi bi-cart-x"></i>
+                        <h3>Your cart is empty</h3>
+                        <p>You haven't added any rooms yet. Browse our collection and find your perfect stay.</p>
+                        <a href="{% url 'hotel:rooms' %}" class="btn-browse">
+                            <i class="bi bi-search"></i> Browse Hotels
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Order Summary -->
+                {% if cart_items %}
+                <div class="order-summary">
+                    <div class="summary-head">
+                        <h3>Order Summary</h3>
+                    </div>
+                    <div class="summary-body">
+                        {% for item in cart_items %}
+                        <div class="summary-row">
+                            <span>{{ item.room_type }} ×{{ item.quantity }}</span>
+                            <span>${{ item.price }}</span>
+                        </div>
+                        {% endfor %}
+                        <div class="summary-total">
+                            <span>Total</span>
+                            <span class="total-amount">${{ total_price }}</span>
+                        </div>
+                        <button class="btn-checkout">
+                            <i class="bi bi-lightning-charge-fill"></i> Proceed to Checkout
+                        </button>
+                        <a href="{% url 'hotel:rooms' %}" class="btn-continue">
+                            <i class="bi bi-arrow-left"></i> Continue Browsing
+                        </a>
+                    </div>
+                    <div class="summary-assurance">
+                        <div class="assurance-item"><i class="bi bi-shield-check"></i><span>Free cancellation available</span></div>
+                        <div class="assurance-item"><i class="bi bi-lock-fill"></i><span>Secure checkout</span></div>
+                        <div class="assurance-item"><i class="bi bi-check-circle"></i><span>Instant confirmation</span></div>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer">
+        <div class="footer-ornament"></div>
+        <div class="container-xl">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <img src="{% static '/images/free-dolphin-42-450306.png' %}" alt="logo" height="42">
+                    <p>Your luxury experience awaits. Complete your booking and prepare for an unforgettable stay.</p>
+                </div>
+                <div class="footer-col">
+                    <h6>Navigate</h6>
+                    <ul>
+                        <li><a href="{% url 'hotel:index' %}">Home</a></li>
+                        <li><a href="{% url 'hotel:rooms' %}">Rooms</a></li>
+                        <li><a href="{% url 'hotel:about' %}">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h6>Support</h6>
+                    <ul>
+                        <li><a href="#">Help Centre</a></li>
+                        <li><a href="#">Cancellation Policy</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Luxury Hotels. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <script>
+        // Hamburger
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navbar = document.getElementById('navbar');
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hamburger.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+        });
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            });
+        });
+        document.addEventListener('click', (e) => {
+            if (!navbar.contains(e.target) && !mobileMenu.contains(e.target)) {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        // Quantity stepper
+        function stepQty(btn, dir) {
+            const input = btn.parentElement.querySelector('.qty-input');
+            const next = parseInt(input.value) + dir;
+            if (next >= 1) input.value = next;
+        }
+    </script>
+
+</body>
+</html>
