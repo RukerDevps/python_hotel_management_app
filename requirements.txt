@@ -58,7 +58,7 @@ openpyxl==3.1.2
 packaging==23.2
 parso==0.8.3
 paypalrestsdk==1.13.3
-pillow==10.2.0
+pillow>=10.3.0
 platformdirs==4.1.0
 pluggy==1.4.0
 proglog==0.1.10
